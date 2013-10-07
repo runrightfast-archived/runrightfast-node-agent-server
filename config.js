@@ -27,11 +27,18 @@ var hawkAuthService = new HawkAuthService({
 	logLevel : config.hapiServer.auth.hawk.logLevel
 });
 
+var LogManager = require('runrightfast-process-monitor-logs').LogManager;
+
 var events = require('runrightfast-commons').events;
 var eventEmitter = new events.AsyncEventEmitter();
 
 var processMonitorLogsHapiConfigOptions = config.hapiServer.plugins['runrightfast-process-monitor-logs-hapi-plugin'];
 processMonitorLogsHapiConfigOptions.eventEmitter = eventEmitter;
+
+var logManager = new LogManager(config.logManager);
+if (config.cleanLogDirOnStartup) {
+	logManager.cleanLogDir();
+}
 
 // Hapi Composer manifest
 var manifest = {
@@ -73,11 +80,14 @@ module.exports = {
 	startCallback : function(error) {
 		if (error) {
 			console.error(error);
+		} else {
+			logManager.start();
 		}
 	},
 	stopCallback : function() {
 		// perform any resource cleanup work here
 		cbConnManager.stop();
 		eventEmitter.emit('STOPPED');
+		logManager.stop();
 	}
 };

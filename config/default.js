@@ -23,7 +23,14 @@ module.exports = {
 	hapiServer : {
 		logLevel : 'WARN',
 		stopTimeout : 5000,
-		port : 8000,
+		port : 7000,
 		logDir : logDir
-	}
+	},
+	logManager : {
+		logDir : logDir,
+		maxNumberActiveFiles : 2,
+		retentionDays : 5,
+		logLevel : 'WARN'
+	},
+	cleanLogDirOnStartup : false
 };

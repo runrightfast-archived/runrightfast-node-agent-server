@@ -54,6 +54,7 @@
 				}
 			},
 			logLevel : 'INFO'
-		}
+		},
+		cleanLogDirOnStartup : true
 	};
 }());
