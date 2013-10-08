@@ -34,7 +34,7 @@
 		"runrightfast-process-monitor-logs":"git://github.com/runrightfast/runrightfast-process-monitor-logs.git#0.0.6",
 		
 		"runrightfast-process-monitor-hapi-plugin":"git://github.com/runrightfast/runrightfast-process-monitor-hapi-plugin#0.0.4",
-		"runrightfast-process-monitor-logs-hapi-plugin":"git://github.com/runrightfast/runrightfast-process-monitor-logs-hapi-plugin#0.0.3"		
+		"runrightfast-process-monitor-logs-hapi-plugin":"git://github.com/runrightfast/runrightfast-process-monitor-logs-hapi-plugin#0.0.5"		
 	},
 	"devDependencies":{
 		"hapi":"1.13.x",

@@ -50,7 +50,7 @@
 				},
 				"runrightfast-process-monitor-logs-hapi-plugin" : {
 					baseUri : '/api/process-monitor-logs',
-					logLevel : 'WARN'
+					logLevel : 'INFO'
 				}
 			},
 			logLevel : 'INFO'

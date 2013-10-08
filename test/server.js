@@ -64,6 +64,15 @@ var path = require('path');
 
 var logDir = file.path.abspath('temp/logs');
 
+var handleResponseError = function(response, done) {
+	var info = {
+		statusCode : response.status.code,
+		statusText : response.status.text,
+		entity : response.entity
+	};
+	done(new Error('log request failed: ' + JSON.stringify(info)));
+};
+
 describe('Node Agent Server', function() {
 	var composer = null;
 
@@ -101,30 +110,321 @@ describe('Node Agent Server', function() {
 		}
 	});
 
-	it('POST /api/process-monitor-logs/logManager/logDir', function(done) {
+	it('POST|PUT|GET /api/process-monitor-logs/logManager/logDir', function(done) {
 		var payload = {
 			logDir : logDir
 		};
 
-		var restRequest = {
+		restClient({
+			method : 'POST',
 			path : '/api/process-monitor-logs/logManager/logDir',
 			entity : payload,
 			headers : {
 				"Content-Type" : 'application/json'
 			}
-		};
-
-		restClient(restRequest).then(function(response) {
+		}).then(function(response) {
 			console.log(response.headers);
 			expect(response.status.code).to.equal(201);
-			done();
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/logDir/' + logDir
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				expect(response.status.code).to.equal(200);
+
+				payload.logLevel = 'ERROR';
+				restClient({
+					method : 'PUT',
+					path : '/api/process-monitor-logs/logManager/logDir',
+					entity : payload,
+					headers : {
+						"Content-Type" : 'application/json'
+					}
+				}).then(function(response) {
+					console.log(response.headers);
+					expect(response.status.code).to.equal(200);
+					done();
+				}, function(response) {
+					handleResponseError(response, done);
+				});
+
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
 		}, function(response) {
-			var info = {
-				statusCode : response.status.code,
-				statusText : response.status.text,
-				entity : response.entity
-			};
-			done(new Error('log request failed: ' + JSON.stringify(info)));
+			handleResponseError(response, done);
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/ls/{logDir*}', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			var logFileName = 'ops.' + process.pid + '.log.001';
+			var logFile = path.join(logDir, logFileName);
+			fs.writeFileSync(logFile, '\nSOME DATA');
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/ls/' + logDir
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				expect(response.status.code).to.equal(200);
+				done();
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/tail/{logDir*}', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			var logFileName = 'ops.' + process.pid + '.log.001';
+			var fileData = '';
+			for ( var i = 0; i < 20; i++) {
+				fileData += ('#' + i + '\n');
+			}
+			var logFile = path.join(logDir, logFileName);
+			fs.writeFileSync(logFile, fileData);
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/tail/' + logFile
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				expect(response.status.code).to.equal(200);
+				done();
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/head/{logDir*}', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			var logFileName = 'ops.' + process.pid + '.log.001';
+			var fileData = '';
+			for ( var i = 0; i < 20; i++) {
+				fileData += ('#' + i + '\n');
+			}
+			var logFile = path.join(logDir, logFileName);
+			fs.writeFileSync(logFile, fileData);
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/head/' + logFile
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				expect(response.status.code).to.equal(200);
+				done();
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/logDirs', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/logDirs'
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				expect(response.status.code).to.equal(200);
+				done();
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
+		});
+	});
+
+	it('DELETE /api/process-monitor-logs/logManager', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			restClient({
+				method : 'DELETE',
+				path : '/api/process-monitor-logs/logManager/logDir/' + logDir
+			}).then(function(response) {
+				console.log(response.headers);
+				expect(response.status.code).to.equal(200);
+
+				restClient({
+					method : 'GET',
+					path : '/api/process-monitor-logs/logManager/logDir/' + logDir
+				}).then(function(response) {
+					done(new Error('Expected logDir to no longer be managed'));
+				}, function(response) {
+					console.log(response.entity);
+					expect(response.status.code).to.equal(404);
+					done();
+				});
+
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
+		});
+	});
+
+	it('POST /api/process-monitor-logs/logManager/deleteAllNonActiveLogFiles/{logDir*}', function(done) {
+		var payload = {
+			logDir : logDir
+		};
+
+		restClient({
+			method : 'POST',
+			path : '/api/process-monitor-logs/logManager/logDir',
+			entity : payload,
+			headers : {
+				"Content-Type" : 'application/json'
+			}
+		}).then(function(response) {
+			console.log(response.headers);
+
+			var logFileName = 'ops.' + process.pid + '999.log.001';
+			var logFile = path.join(logDir, logFileName);
+			fs.writeFileSync(logFile, '\nSOME DATA');
+
+			restClient({
+				method : 'GET',
+				path : '/api/process-monitor-logs/logManager/ls/' + logDir
+			}).then(function(response) {
+				console.log(response.headers);
+				console.log(response.entity);
+				try {
+					expect(response.status.code).to.equal(200);
+					var f = lodash.find(response.entity,function(f){
+						return f.file === logFileName;
+					});
+					expect(f).to.exist;
+				} catch (err) {
+					done(err);
+				}
+
+				restClient({
+					method : 'POST',
+					path : '/api/process-monitor-logs/logManager/deleteAllNonActiveLogFiles/' + logDir
+				}).then(function(response) {
+					console.log(response.headers);
+					console.log(response.entity);
+					console.log(response.status.code);
+					expect(response.status.code).to.equal(202);
+
+					setTimeout(function() {
+						restClient({
+							method : 'GET',
+							path : '/api/process-monitor-logs/logManager/ls/' + logDir
+						}).then(function(response) {
+							console.log(response.headers);
+							console.log(response.entity);
+							try {
+								expect(response.status.code).to.equal(200);
+								var f = lodash.find(response.entity,function(f){
+									return f.file === logFileName;
+								});
+								expect(f).to.not.exist;
+								done();
+							} catch (err) {
+								done(err);
+							}
+						}, function(response) {
+							handleResponseError(response, done);
+						});
+					}, 10);
+
+				}, function(response) {
+					handleResponseError(response, done);
+				});
+
+			}, function(response) {
+				handleResponseError(response, done);
+			});
+
+		}, function(response) {
+			handleResponseError(response, done);
 		});
 	});
 
