@@ -1,6 +1,6 @@
 {
 	"name":"runrightfast-node-agent-server",
-	"version":"0.0.3",
+	"version":"0.0.4",
 	"description":"RunRightFast API Gateway",
 	"repository":{
 		"type":"git",
@@ -27,7 +27,7 @@
 		"furball":"0.3.x",
 		"good":"0.12.x",
 		
-		"runrightfast-hapi-server":"git://github.com/runrightfast/runrightfast-hapi-server#0.0.16",		
+		"runrightfast-hapi-server":"git://github.com/runrightfast/runrightfast-hapi-server#0.0.17",		
 		"runrightfast-auth-service":"git://github.com/runrightfast/runrightfast-auth-service#0.0.7",
 		"runrightfast-couchbase":"git://github.com/runrightfast/runrightfast-couchbase#0.0.5",
 		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.12",
@@ -37,7 +37,7 @@
 		"runrightfast-process-monitor-logs-hapi-plugin":"git://github.com/runrightfast/runrightfast-process-monitor-logs-hapi-plugin#0.0.5"		
 	},
 	"devDependencies":{
-		"hapi":"1.13.x",
+		"hapi":"1.14.x",
 		"grunt":"0.4.x",
 		"grunt-jslint":"1.1.x",
 		"mocha":"1.13.x",
